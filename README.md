@@ -1,1 +1,5 @@
-Creating a simple Unix system
+Simple Shell project collaboration
+by
+Elizabeth Wanjiru
+&
+Lahat Mariel
