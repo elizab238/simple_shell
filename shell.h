@@ -1,39 +1,105 @@
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef SHELLH
+#define SHELLH
 
+#define _GNU_SOURCE
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#define GETLINE_MINSIZE 16
+#include <sys/wait.h>
+#include "history.h"
+#include "shellvars.h"
+/*#include <string.h>*/
 
-int print_prompt(void);
-char *get_input(ssize_t *num_read);
-char** tokenize(char *line_read, ssize_t num_read);
-int execution(char **tokens);
-void commands(char **args);
-char *_which(char *command);
+/* from in.c */
+int shintmode(void);
 
-// get line protype
-int _getline(char **lineptr, size_t *n, FILE *fp);
+/* from _printenv.c */
+int _printenv(void);
 
-/* global environment variables */
-extern char **environ;
+/* from cmdcall.c */
+int builtincall(char *av[]);
+int cmdcall(char *av[], char *path);
 
-/* struct for built-in commands */
-struct builtin {
-    char *name;
-    void (*func)(char **args);
-};
+/* from parser.c */
+int parseargs(char **buf);
 
-/* prototype for functions relating to built-in commands */
-void hsh_exit(char **args);
-void hsh_cd(char **args);
-void hsh_help(char **args);
-void hsh_env(char **args);
+/* from errhandl.c */
+int errhandl(int status);
+
+/* from string.c */
+size_t _strlen(char *str);
+char *_strcpy(char *dest, char *src);
+int _strcmp(char *, char *);
+char *_strdup(char *str);
+char *_strcat(char *a, char *b);
+
+/* from _getenv.c and getenviron.c */
+char ***getenviron(void);
+int setallenv(char **environ, char *add);
+char *_getenv(char *avzero);
+int _setenv(char *name, char *val);
+int _unsetenv(char *name);
+char **getallenv(void);
+
+
+/* from utility.c */
+char *itos(int digits);
+char *_strchr(char *s, char c);
+int fprintstrs(int fd, char *str, ...);
+int printerr(char *);
+int linecount(int);
+
+/* from cd.c */
+int _cd(char *av[]);
+
+/* from alias.c */
+int aliascmd(char **av);
+char *getalias(char *name);
+int unsetalias(char *name);
+
+/* from shellvars.c */
+int initsvars(int ac, char **av);
+char *getsvar(char *name);
+int setsvar(char *name, char *val);
+int unsetsvar(char *name);
+ShellVar **getspecial(void);
+ShellVar **getvars(void);
+
+/* from _realloc.c */
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+
+/* from _strtok.c */
+char *strtok(char *str, char *delim);
+
+/* from _getline.c */
+int _getline(char **lineptr, int fd);
+
+char *strtokqe(char *str, char *delim, int escflags);
+
+/*from history.c*/
+int sethist(char *cmd);
+int print_hist(void);
+int exit_hist(void);
+
+
+/* from _printenv.c */
+int _printenv(void);
+int _putchar(char c);
+
+
+
+/*from help.c*/
+int help(char *cmd);
+
+/* from exitcleanup.c */
+void exitcleanup(char **av);
+
+/* from _atoi*/
+int _atoi(char *s);
+
+char *_getpid(void);
+
 
 #endif
