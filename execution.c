@@ -1,28 +1,36 @@
 #include "shell.h"
 
-/**
- * execution - executes commands entered by users
- *@cp: command
- *@cmd:vector array of pointers to commands
- * Return: 0
- */
-void execution(char *cp, char **cmd)
+int execution(char **tokens)
 {
 	pid_t child_pid;
-	int status;
-	char **env = environ;
+	char *command, **envp;
+	
+	envp = environ;
 
-	child_pid = fork();
-	if (child_pid < 0)
-		perror(cp);
-	if (child_pid == 0)
+	/* check if command is one of the built in commands */
+	commands(tokens);
+
+	/* check if command exist and generate the path for the command */
+	command = _which(tokens[0]);
+	if (command == NULL)
 	{
-		execve(cp, cmd, env);
-		perror(cp);
-		free(cp);
-		free_buffers(cmd);
-		exit(98);
+		return (-1);
 	}
-	else
-		wait(&status);
+	
+	child_pid = fork(); /* create a new child process */
+
+	if (child_pid == 0) {
+		execve(command, tokens, envp);
+		perror(tokens[0]);
+		return (-1);
+	} else if (child_pid > 0) {
+		int status;
+		do {
+			waitpid(child_pid, &status, WUNTRACED);
+		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	} else {
+		perror("hsh");
+		return (-1);
+	}
+	return (0);
 }
