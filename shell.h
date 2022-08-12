@@ -1,39 +1,61 @@
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef SHELL_H
+#define SHELL_H
 
+#include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/wait.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
-#define GETLINE_MINSIZE 16
+#include <time.h>
+#include <stdbool.h>
 
-int print_prompt(void);
-char *get_input(ssize_t *num_read);
-char** tokenize(char *line_read, ssize_t num_read);
-int execution(char **tokens);
-void commands(char **args);
-char *_which(char *command);
-
-// get line protype
-int _getline(char **lineptr, size_t *n, FILE *fp);
-
-/* global environment variables */
+/* environment variables */
 extern char **environ;
+extern __sighandler_t signal(int __sig, __sighandler_t __handler);
 
-/* struct for built-in commands */
-struct builtin {
-    char *name;
-    void (*func)(char **args);
-};
+/* handle built ins */
+int checker(char **cmd, char *buf);
+void prompt_user(void);
+void handle_signal(int m);
+char **tokenizer(char *line);
+char *test_path(char **path, char *command);
+char *append_path(char *path, char *command);
+int handle_builtin(char **command, char *line);
+void exit_cmd(char **command, char *line);
 
-/* prototype for functions relating to built-in commands */
-void hsh_exit(char **args);
-void hsh_cd(char **args);
-void hsh_help(char **args);
-void hsh_env(char **args);
+void print_env(void);
 
-#endif
+/* string handlers */
+int _strcmp(char *s1, char *s2);
+int _strlen(char *s);
+int _strncmp(char *s1, char *s2, int n);
+char *_strdup(char *s);
+char *_strchr(char *s, char c);
+
+void execution(char *cp, char **cmd);
+char *find_path(void);
+
+/* helper function for efficient free */
+void free_buffers(char **buf);
+
+struct builtin
+{
+		char *env;
+			char *exit;
+} builtin;
+
+struct info
+{
+		int final_exit;
+			int ln_count;
+} info;
+
+struct flags
+{
+		bool interactive;
+} flags;
+
+#endif /* SHELL_H */
